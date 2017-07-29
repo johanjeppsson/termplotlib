@@ -3,8 +3,6 @@ from __future__ import unicode_literals
 
 import numpy as np
 
-from colors import fg, bg, st
-
 UNICODE_SPACE = unichr(0x20).encode('utf-8')
 UNICODE_NEWLINE = '\n'.encode('utf-8')
 
