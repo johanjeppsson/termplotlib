@@ -1,5 +1,5 @@
 import numpy as np
-from raster import Cell, Canvas
+from raster import Canvas
 
 LETTERS = {
     # Capital letters
@@ -227,12 +227,12 @@ LETTERS = {
                     [1, 0, 1, 0],
                     [1, 0, 0, 0],
                     [1, 0, 0, 0]], dtype=bool),
-    'l' : np.array([[0, 0, 0, 0],
-                    [0, 1, 1, 0],
-                    [0, 1, 0, 0],
-                    [0, 1, 0, 0],
-                    [0, 1, 0, 0],
-                    [1, 1, 0, 0]], dtype=bool),
+    'l' : np.array([[0, 0],
+                    [1, 0],
+                    [1, 0],
+                    [1, 0],
+                    [1, 0],
+                    [1, 0]], dtype=bool),
     'm' : np.array([[0, 0, 0, 0, 0, 0],
                     [1, 0, 0, 0, 1, 0],
                     [1, 0, 1, 0, 1, 0],
