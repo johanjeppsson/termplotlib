@@ -15,7 +15,10 @@ class Canvas(object):
                                [0x04, 0x20],
                                [0x02, 0x10],
                                [0x01, 0x08]])
-
+    _alignments = {'bottomleft' : np.array([[0, 1],[0, 1]]),
+                   'topleft'    : np.array([[1, 0],[0, 1]]),
+                   'bottomright': np.array([[0, 1],[1, 0]]),
+                   'topright'   : np.array([[1, 0],[1, 0]])}
 
     def __init__(self, width, height, pattern=None):
         if pattern is not None:
@@ -40,6 +43,12 @@ class Canvas(object):
 
     def stretch(self, new_width, new_height, alignment='bottomleft'):
         assert new_width >= self.width and new_height >= self.height
+        assert alignment in self._alignments.keys()
+        padding = self._alignments[alignment]
+        padding[0,:] *= new_height - self.height
+        padding[1,:] *= new_width - self.width
+        self.pattern = np.pad(self.pattern, padding, mode='constant')
+        self._set_size(new_width, new_height)
 
     def set(self, x, y):
         # Find cell coordinates.
