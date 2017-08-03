@@ -8,7 +8,9 @@ OSC = '\033]'
 # Some convenience names for common colors that are outside.
 EXTRA_NAMES = {'ORANGE'            : 208,
                'PINK'              : 218,
-               'PURPLE'            : 55}
+               'PURPLE'            : 55,
+               'GREY'              : 239,
+}
 
 # Standard Xterm names
 XTERM_NAMES = {'MAROON'            : 1,
