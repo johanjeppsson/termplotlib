@@ -3,6 +3,8 @@ from __future__ import unicode_literals
 
 import numpy as np
 
+from colors import fg, bg
+
 UNICODE_SPACE = unichr(0x20).encode('utf-8')
 UNICODE_NEWLINE = '\n'.encode('utf-8')
 
@@ -11,16 +13,20 @@ class Canvas(object):
     A class representing a canvas of braille dots.
     """
 
+    # A matrix containing the separate unicode values for each dot.
     _dots = 0x2800 + np.array([[0x40, 0x80],
                                [0x04, 0x20],
                                [0x02, 0x10],
                                [0x01, 0x08]])
+
+    # Possible alignment values and their paddings used when stretching
+    # the canvas.
     _alignments = {'bottomleft' : np.array([[0, 1],[0, 1]]),
                    'topleft'    : np.array([[1, 0],[0, 1]]),
                    'bottomright': np.array([[0, 1],[1, 0]]),
                    'topright'   : np.array([[1, 0],[1, 0]])}
 
-    def __init__(self, width, height, pattern=None):
+    def __init__(self, width, height, pattern=None, background=None):
         if pattern is not None:
             height, width = pattern.shape
             self._set_size(width, height)
@@ -30,13 +36,17 @@ class Canvas(object):
             self._set_size(width, height)
             self.pattern = np.zeros((self.height, self.width), dtype=bool)
 
+        if background:
+            self.background = bg[background]
+        else:
+            self.background = ''
+
     def _set_size(self, width, height):
         self.width = width
         self.height = height
 
         self._c_width  = np.ceil(width/2.0).astype(int)
         self._c_height = np.ceil(height/4.0).astype(int)
-
 
     def reset(self):
         self.pattern = np.zeros((self.height, self.width), dtype=bool)
@@ -63,7 +73,7 @@ class Canvas(object):
     def _to_unicode(self):
         rows = []
         for y in np.arange(self._c_height):
-            row = ''.encode('utf-8')
+            row = self.background.encode('utf-8')
             for x in np.arange(self._c_width):
                 code = 0
                 for dot in (self._dots * self._get_cell_pattern(x, y)).flatten():
@@ -72,6 +82,7 @@ class Canvas(object):
                     row += UNICODE_SPACE
                 else:
                     row += unichr(code).encode('utf-8')
+            row += bg.RESET.encode('utf-8')
             rows.append(row)
         return UNICODE_NEWLINE.join(reversed(rows))
 
