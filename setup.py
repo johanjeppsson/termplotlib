@@ -22,7 +22,7 @@ setup(
         "Development Status :: 1 - Planning",
         "Topic :: Utilities",
         'Environment :: Console',
-        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)'
+        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'Programming Language :: Python',

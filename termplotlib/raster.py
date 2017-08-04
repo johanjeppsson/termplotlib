@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import numpy as np
 
-from colors import fg, bg
+from termplotlib.colors import fg, bg
 
 UNICODE_SPACE = unichr(0x20).encode('utf-8')
 UNICODE_NEWLINE = '\n'.encode('utf-8')
@@ -33,12 +33,19 @@ class Canvas(object):
     }
 
     def __init__(self, width, height, pattern=None, background=None):
+        """Create a canvas.
+
+        :param int width: The width (in dots) of the canvas.
+        :param int height: The height (in dots) of the canvas.
+        :param ndarray pattern: (optional) Initial pattern for the canvas. If no pattern is given
+        an empty canvas is created.
+        :param string background: The background color of the canvas.
+        """
         if pattern is not None:
             height, width = pattern.shape
             self._set_size(width, height)
             self.pattern = pattern.copy()
             self._color_map = np.zeros((self.height, self.width), dtype=str)
-
         else:
             self._set_size(width, height)
             self.reset()
