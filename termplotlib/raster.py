@@ -5,9 +5,6 @@ import numpy as np
 
 from termplotlib.colors import fg, bg
 
-UNICODE_SPACE = unichr(0x20).encode('utf-8')
-UNICODE_NEWLINE = '\n'.encode('utf-8')
-
 class Canvas(object):
     """
     A class representing a canvas of braille dots.
@@ -140,25 +137,25 @@ class Canvas(object):
 
         rows = []
         for y in np.arange(c_height):
-            row = self.background.encode('utf-8')
+            row = self.background
             for x in np.arange(c_width):
                 code = 0
                 for dot in (self._dots * self._get_cell_pattern(pattern, x, y)).flatten():
                     code |= dot
                 if code == 0:
-                    row += UNICODE_SPACE
+                    row += ' '
                 else:
                     color = self._get_cell_color(color_map, x, y)
-                    row += color.encode('utf-8')
-                    row += unichr(code).encode('utf-8')
-                    row += fg.RESET.encode('utf-8')
-            row += bg.RESET.encode('utf-8')
+                    row += color
+                    row += unichr(code)
+                    row += fg.RESET
+            row += bg.RESET
             rows.append(row)
         return rows
 
     def _to_unicode(self):
         rows = self.get_rows()
-        return UNICODE_NEWLINE.join(reversed(rows))
+        return '\n'.join(reversed(rows)).encode('utf-8')
 
     def __str__(self):
         return self._to_unicode()
