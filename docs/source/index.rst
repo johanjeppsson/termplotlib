@@ -1,9 +1,18 @@
 termplotlib
-=======================================
+===========
+Lorem ipsum
+
+Sub title
+^^^^^^^^^
+Blablabla
+
+Contents:
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+
+
+   raster
 
 Indices and tables
 ==================
