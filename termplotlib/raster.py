@@ -4,8 +4,9 @@ from __future__ import unicode_literals
 import numpy as np
 
 from termplotlib.colors import fg, bg
+from termplotlib.canvas import Canvas
 
-class Canvas(object):
+class RasterCanvas(Canvas):
     """
     A class representing a canvas of braille dots.
     """
@@ -67,7 +68,7 @@ class Canvas(object):
         # Make sure the color map is initialized with empty strings.
         self._color_map[:] = ''
 
-    def stretch(self, new_width, new_height, alignment='bottomleft'):
+    def stretch(self, new_width, new_height, alignment='center'):
         padding = self.get_padding(new_width, new_height, alignment)
         self.pattern = np.pad(self.pattern, padding, mode='constant')
         self._color_map = np.pad(self._color_map, padding, mode='constant')
@@ -126,11 +127,7 @@ class Canvas(object):
         return ''
 
     def get_rows(self, width=None, height=None, alignment='bottomleft'):
-        if width is None:
-            width = self.width
-        if height is None:
-            height = self.height
-        assert width >= self.width and height >= self.height
+        width, height = self._check_dimensions(width, height)
         padding = self.get_padding(width, height, alignment)
         pattern = np.pad(self.pattern, padding, mode='constant')
         color_map = np.pad(self._color_map, padding, mode='constant')
@@ -155,16 +152,10 @@ class Canvas(object):
             rows.append(row)
         return rows
 
-    def _to_unicode(self):
-        rows = self.get_rows()
-        return '\n'.join(reversed(rows)).encode('utf-8')
-
-    def __str__(self):
-        return self._to_unicode()
 
 if __name__ == '__main__':
 
-    canvas = Canvas(100, 100, background='grey')
+    canvas = RasterCanvas(100, 100, background='grey')
     x = np.linspace(0, 2*np.pi, 100)
     y = (48 * np.sin(x) + 50).astype(int)
     y2 = (48 * np.cos(x) + 50).astype(int)

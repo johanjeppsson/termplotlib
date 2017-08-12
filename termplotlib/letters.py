@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 
 import numpy as np
-from raster import Canvas
+from raster import RasterCanvas
 
 LETTERS = {
     # Capital letters
@@ -349,13 +349,13 @@ LETTERS = {
 
 }
 
-class Letter(Canvas):
+class Letter(RasterCanvas):
     def __init__(self, char):
         pattern = LETTERS[char]
         h, w = pattern.shape
         super(Letter, self).__init__(h, w, pattern=pattern)
 
-class Text(Canvas):
+class Text(RasterCanvas):
     def __init__(self, text):
         w = 0
         h = 0
