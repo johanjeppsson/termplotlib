@@ -1,6 +1,7 @@
 """
 Convenience functions for colors in terminals
 """
+from __future__ import unicode_literals
 
 CSI = '\033['
 OSC = '\033]'

@@ -63,7 +63,9 @@ class Canvas(object):
 
     def reset(self):
         self.pattern = np.zeros((self.height, self.width), dtype=bool)
-        self._color_map = np.chararray((self.height, self.width), itemsize=15)
+        self._color_map = np.chararray((self.height, self.width), itemsize=64)
+        # Make sure the color map is initialized with empty strings.
+        self._color_map[:] = ''
 
     def stretch(self, new_width, new_height, alignment='bottomleft'):
         padding = self.get_padding(new_width, new_height, alignment)
@@ -117,7 +119,7 @@ class Canvas(object):
         # Get the most used color for the cell
         counts = {}
         for c in colors:
-            if c != '':
+            if len(c) > 0:
                 counts[c] = counts.get(c, 0) + 1
         if len(counts) > 0:
             return sorted(counts, key=counts.get, reverse=True)[0]
