@@ -316,7 +316,7 @@ LETTERS = {
     'z' : np.array([[0, 0, 0, 0],
                     [1, 1, 1, 0],
                     [1, 0, 0, 0],
-                    [0, 1, 0, 0],
+                    [0, 0, 1, 0],
                     [1, 1, 1, 0],
                     [0, 0, 0, 0]], dtype=bool),
 
@@ -374,4 +374,4 @@ class Text(RasterCanvas):
 if __name__ == '__main__':
     print Text('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
     print Text('abcdefghijklmnopqrstuvwxyz')
-    print Text('The quick brown fox, jumped over the lazy dog!')
+    print Text('The quick brown fox, jumps over the lazy dog!')
