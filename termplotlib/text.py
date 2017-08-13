@@ -68,12 +68,18 @@ class TextCanvas(Canvas):
 
 class TextBox(TextCanvas):
 
+    def __init__(self, text=None, color=None, background=None, border_color=None):
+        super(TextBox, self).__init__(text, color, background)
+
+        self.border_color = border_color
+
     _box_chars = {'ul': unichr(0x250c),
                   'ur': unichr(0x2510),
                   'll': unichr(0x2514),
                   'lr': unichr(0x2518),
                   'h' : unichr(0x2500),
                   'v' : unichr(0x2502)}
+
     @property
     def text(self):
         return self._text
@@ -86,6 +92,14 @@ class TextBox(TextCanvas):
         self.width = (max(map(len, self._lines)) + 2) * 2
         self.height = (len(self._lines) + 2) * 4
 
+    @property
+    def border_color(self, color):
+        return self._b_fg
+
+    @border_color.setter
+    def border_color(self, color):
+        self._b_fg = fg[color] if color else self.color
+
     def get_rows(self, width=None, height=None, alignment='center'):
         width, height = self._check_dimensions(width, height)
         padding = self.get_padding(width, height, alignment)
@@ -96,25 +110,25 @@ class TextBox(TextCanvas):
         c_width = np.ceil(width / 2.0).astype(int)
 
         lines_out = []
-        lines_out.append(self._color_line(self._box_chars['ul'] +
-                                          self._box_chars['h'] * (c_width - 2) +
-                                          self._box_chars['ur']))
-        pad_line = self._color_line(self._box_chars['v'] +
-                                    ' ' * (c_width - 2) +
-                                    self._box_chars['v'])
+        lines_out.append(self._b_fg + self._bg + self._box_chars['ul'] +
+                         self._box_chars['h'] * (c_width - 2) +
+                         self._box_chars['ur'] + st.RESET_ALL)
+        pad_line = self._b_fg + self._bg + self._box_chars['v'] + \
+                   ' ' * (c_width - 2) + \
+                   self._box_chars['v'] + st.RESET_ALL
         lines_out.extend([pad_line] * pad_above)
 
         for line in self._lines:
             line_pad = (c_width - 2) - (len(line) + pad_before + pad_after)
-            lines_out.append(self._color_line(self._box_chars['v'] +
-                                              ' ' * pad_before +
-                                              line +
-                                              ' ' * (pad_after + line_pad)
-                                              + self._box_chars['v']))
+            lines_out.append(self._b_fg + self._bg + self._box_chars['v'] +
+                             self._fg + ' ' * pad_before +
+                             line +
+                             ' ' * (pad_after + line_pad) +
+                             self._b_fg + self._box_chars['v'] + st.RESET_ALL)
         lines_out.extend([pad_line] * pad_below)
-        lines_out.append(self._color_line(self._box_chars['ll'] +
-                                          self._box_chars['h'] * (c_width - 2) +
-                                          self._box_chars['lr']))
+        lines_out.append(self._b_fg + self._bg + self._box_chars['ll'] +
+                         self._box_chars['h'] * (c_width - 2) +
+                         self._box_chars['lr'] + st.RESET_ALL)
 
         return lines_out
 
@@ -124,5 +138,5 @@ if __name__ == '__main__':
 
     print t.to_unicode(80, 30,'center')
 
-    bt = TextBox('This is a\n textbox', color='grey', background='black')
+    bt = TextBox('This is a\n textbox', color='red', background='black', border_color='orange')
     print bt.to_unicode(80, 30, 'center')
