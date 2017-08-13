@@ -19,12 +19,12 @@ class Canvas(object):
     def get_rows(self, width=None, height=None, alignment='center'):
         raise NotImplementedError('"get_rows" should be implemented by subclass!')
 
-    def _to_unicode(self):
-        rows = self.get_rows()
-        return '\n'.join(reversed(rows)).encode('utf-8')
+    def to_unicode(self, width=None, height=None, alignment='center'):
+        rows = self.get_rows(width, height, alignment)
+        return '\n'.join(rows).encode('utf-8')
 
     def __str__(self):
-        return self._to_unicode()
+        return self.to_unicode()
 
     def _check_dimensions(self, width, height):
         if width is None:

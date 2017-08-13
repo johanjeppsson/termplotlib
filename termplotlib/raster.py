@@ -104,7 +104,7 @@ class RasterCanvas(Canvas):
         c_width, c_height = self._get_cell_dimensions(width, height)
 
         rows = []
-        for y in np.arange(c_height):
+        for y in reversed(np.arange(c_height)):
             row = self.background
             for x in np.arange(c_width):
                 code = 0

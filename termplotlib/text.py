@@ -50,24 +50,79 @@ class TextCanvas(Canvas):
     def get_rows(self, width=None, height=None, alignment='center'):
         width, height = self._check_dimensions(width, height)
         padding = self.get_padding(width, height, alignment)
-        above = np.ceil(padding[0,0] / 4.0).astype(int)
-        below = np.floor(padding[0,1] / 4.0).astype(int)
-        before = np.floor(padding[1,0] / 2.0).astype(int)
-        after = np.ceil(padding[1,1] / 2.0).astype(int)
+        pad_above = np.ceil(padding[0,0] / 4.0).astype(int)
+        pad_below = np.floor(padding[0,1] / 4.0).astype(int)
+        pad_before = np.floor(padding[1,0] / 2.0).astype(int)
+        pad_after = np.ceil(padding[1,1] / 2.0).astype(int)
         c_width = np.ceil(width / 2.0).astype(int)
 
         lines_out = []
 
-        lines_out.extend([self._color_line(' ' * c_width) for i in range(above)])
+        lines_out.extend([self._color_line(' ' * c_width) for i in range(pad_above)])
         for line in self._lines:
-            lines_out.append(self._color_line(' ' * before + line + ' ' * after))
-        lines_out.extend([self._color_line(' ' * c_width) for i in range(below)])
+            line_pad = c_width - (len(line) + pad_before + pad_after)
+            lines_out.append(self._color_line(' ' * pad_before + line + ' ' * (pad_after + line_pad)))
+        lines_out.extend([self._color_line(' ' * c_width) for i in range(pad_below)])
+
+        return lines_out
+
+class TextBox(TextCanvas):
+
+    _box_chars = {'ul': unichr(0x250c),
+                  'ur': unichr(0x2510),
+                  'll': unichr(0x2514),
+                  'lr': unichr(0x2518),
+                  'h' : unichr(0x2500),
+                  'v' : unichr(0x2502)}
+    @property
+    def text(self):
+        return self._text
+
+    @text.setter
+    def text(self, text):
+        setattr(self, '_text', text)
+        self._lines = text.split('\n')
+
+        self.width = (max(map(len, self._lines)) + 2) * 2
+        self.height = (len(self._lines) + 2) * 4
+
+    def get_rows(self, width=None, height=None, alignment='center'):
+        width, height = self._check_dimensions(width, height)
+        padding = self.get_padding(width, height, alignment)
+        pad_above = np.ceil(padding[0,0] / 4.0).astype(int)
+        pad_below = np.floor(padding[0,1] / 4.0).astype(int)
+        pad_before = np.floor(padding[1,0] / 2.0).astype(int) - 1
+        pad_after = np.ceil(padding[1,1] / 2.0).astype(int) - 1
+        c_width = np.ceil(width / 2.0).astype(int)
+
+        lines_out = []
+        lines_out.append(self._color_line(self._box_chars['ul'] +
+                                          self._box_chars['h'] * (c_width - 2) +
+                                          self._box_chars['ur']))
+        pad_line = self._color_line(self._box_chars['v'] +
+                                    ' ' * (c_width - 2) +
+                                    self._box_chars['v'])
+        lines_out.extend([pad_line] * pad_above)
+
+        for line in self._lines:
+            line_pad = (c_width - 2) - (len(line) + pad_before + pad_after)
+            lines_out.append(self._color_line(self._box_chars['v'] +
+                                              ' ' * pad_before +
+                                              line +
+                                              ' ' * (pad_after + line_pad)
+                                              + self._box_chars['v']))
+        lines_out.extend([pad_line] * pad_below)
+        lines_out.append(self._color_line(self._box_chars['ll'] +
+                                          self._box_chars['h'] * (c_width - 2) +
+                                          self._box_chars['lr']))
 
         return lines_out
 
 if __name__ == '__main__':
 
-    t = TextCanvas('This is a text canvas', color='orange', background='navy')
+    t = TextCanvas('This is a text canvas\nWith multiple lines', color='orange', background='navy')
 
-    for row in t.get_rows(80, 30):
-        print row
+    print t.to_unicode(80, 30,'center')
+
+    bt = TextBox('This is a\n textbox', color='grey', background='black')
+    print bt.to_unicode(80, 30, 'center')
