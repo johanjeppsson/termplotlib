@@ -73,15 +73,34 @@ class VerticalLine(Line):
                  for i in range(c_height)]
         return lines
 
+
 class HorizontalArrow(HorizontalLine):
 
     _arrow_right = unichr(0x25b8)
     _arrow_left = unichr(0x25c2)
 
+    directions = ['left', 'right', 'both']
+
+    def __init__(self, color=None, background=None, direction='right'):
+        super(HorizontalLine, self).__init__(color, background)
+
+        self.direction = direction
+
+    @property
+    def direction(self):
+        return self._direction
+
+    @direction.setter
+    def direction(self, direction):
+        if direction not in self.directions:
+            raise ValueError('Invalid direction "{}"'.format(direction))
+        self._direction = direction
+
+
     def _get_line_char(self, row, col, n_rows, n_cols):
-        if col == 0:
+        if col == 0 and self.direction in ['left', 'both']:
             return self._arrow_left
-        elif col == n_cols - 1:
+        elif col == n_cols - 1 and self.direction in ['right', 'both']:
             return self._arrow_right
         else:
             return self._line_char
@@ -91,10 +110,27 @@ class VerticalArrow(VerticalLine):
     _arrow_up = unichr(0x25B4)
     _arrow_down = unichr(0x25be)
 
+    directions = ['up', 'down', 'both']
+
+    def __init__(self, color=None, background=None, direction='up'):
+        super(VerticalLine, self).__init__(color, background)
+
+        self.direction = direction
+
+    @property
+    def direction(self):
+        return self._direction
+
+    @direction.setter
+    def direction(self, direction):
+        if direction not in self.directions:
+            raise ValueError('Invalid direction "{}"'.format(direction))
+        self._direction = direction
+
     def _get_line_char(self, row, col, n_rows, n_cols):
-        if row == 0:
+        if row == 0 and self.direction in ['up', 'both']:
             return self._arrow_up
-        elif row == n_rows - 1:
+        elif row == n_rows - 1 and self.direction in ['down', 'both']:
             return self._arrow_down
         else:
             return self._line_char
@@ -112,5 +148,6 @@ if __name__ == '__main__':
     print ha.to_unicode(80, 30)
 
     va = VerticalArrow(color='orange', background='navy')
+    va.direction = 'both'
     print va.to_unicode(80, 30)
 
