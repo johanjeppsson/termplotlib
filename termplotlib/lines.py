@@ -4,11 +4,14 @@ from termplotlib.canvas import Canvas
 from termplotlib.colors import fg, bg, st
 
 class Line(Canvas):
-    def __init__(self, color=None, background=None):
-        super(Canvas, self).__init__()
+    def __init__(self, width=1, height=1, stretchable=True, alignment='center', color=None, background=None, style='solid'):
+        super(Line, self).__init__(width, height, stretchable, alignment)
 
+        self.width = width
+        self.height = height
         self.color = color
         self.background = background
+        self.style = style
 
     @property
     def color(self):
@@ -26,6 +29,17 @@ class Line(Canvas):
     def background(self, background):
         self._bg = bg[background] if background else ''
 
+    @property
+    def style(self):
+        return self._style
+
+    @style.setter
+    def style(self, style):
+        if style not in self._line_chars:
+            raise ValueError('Invalid style "{}"'.format(style))
+        self._style = style
+        self._line_char = self._line_chars[style]
+
     def _color_line(self, line):
         return self._fg + self._bg + line + st.RESET_ALL
 
@@ -34,12 +48,16 @@ class Line(Canvas):
 
 class HorizontalLine(Line):
 
-    _line_char = unichr(0x2500)
+    _line_chars = {'solid':  unichr(0x2500),
+                   'bold' :  unichr(0x2501),
+                   'double': unichr(0x2550),
+                   'dashed': unichr(0x254c)}
 
     def _get_line_char(self, row, col, n_rows, n_cols):
         return self._line_char
 
     def get_rows(self, width=None, height=None, alignment='center'):
+        width, height = self._check_dimensions(width, height)
         pad_above = np.ceil((height - 4)/(2 * 4.0)).astype(int)
         pad_below = np.floor((height - 4)/(2 * 4.0)).astype(int)
         c_width = np.ceil(width / 2.0).astype(int)
@@ -56,12 +74,16 @@ class HorizontalLine(Line):
 
 class VerticalLine(Line):
 
-    _line_char = unichr(0x2502)
+    _line_chars = {'solid': unichr(0x2502),
+                   'bold' : unichr(0x2503),
+                   'double': unichr(0x2551),
+                   'dashed': unichr(0x254e)}
 
     def _get_line_char(self, row, col, n_rows, n_cols):
         return self._line_char
 
     def get_rows(self, width=None, height=None, alignment='center'):
+        width, height = self._check_dimensions(width, height)
         pad_before = np.ceil((width - 2)/(2 * 2.0)).astype(int)
         pad_after = np.floor((width - 2)/(2 * 2.0)).astype(int)
         c_height = np.ceil(height / 4.0).astype(int)
@@ -81,10 +103,9 @@ class HorizontalArrow(HorizontalLine):
 
     directions = ['left', 'right', 'both']
 
-    def __init__(self, color=None, background=None, direction='right'):
-        super(HorizontalLine, self).__init__(color, background)
-
-        self.direction = direction
+    def __init__(self, *args, **kwargs):
+        self.direction = kwargs.pop('direction', 'right')
+        super(HorizontalLine, self).__init__(*args, **kwargs)
 
     @property
     def direction(self):
@@ -95,7 +116,6 @@ class HorizontalArrow(HorizontalLine):
         if direction not in self.directions:
             raise ValueError('Invalid direction "{}"'.format(direction))
         self._direction = direction
-
 
     def _get_line_char(self, row, col, n_rows, n_cols):
         if col == 0 and self.direction in ['left', 'both']:
@@ -112,10 +132,9 @@ class VerticalArrow(VerticalLine):
 
     directions = ['up', 'down', 'both']
 
-    def __init__(self, color=None, background=None, direction='up'):
-        super(VerticalLine, self).__init__(color, background)
-
-        self.direction = direction
+    def __init__(self, *args, **kwargs):
+        self.direction = kwargs.pop('direction', 'up')
+        super(VerticalLine, self).__init__(*args, **kwargs)
 
     @property
     def direction(self):
@@ -136,18 +155,20 @@ class VerticalArrow(VerticalLine):
             return self._line_char
 
 if __name__ == '__main__':
+    from termplotlib.layout import Row, Column
+    from termplotlib.text import TextBox
+    for sty in ['solid', 'bold', 'double', 'dashed']:
+        hl = HorizontalLine(width=20, height=20, color='orange', background='navy', style=sty)
+        vl = VerticalLine(width=20, height=20, color='orange', background='navy', style=sty)
 
-    hl = HorizontalLine(color='orange', background='navy')
+        ha = HorizontalArrow(width=20, height=20, color='orange', background='navy', style=sty)
 
-    print hl.to_unicode(80, 30)
+        va = VerticalArrow(width=20, height=20, color='orange', background='navy', style=sty)
+        va.direction = 'both'
 
-    vl = VerticalLine(color='orange', background='navy')
-    print vl.to_unicode(80, 30)
+        row = Row([hl, vl, ha, va])
+        tb = TextBox(text=sty, border_style=sty)
+        col = Column([tb, row])
+        print col.to_unicode(160, 80)
 
-    ha = HorizontalArrow(color='orange', background='navy')
-    print ha.to_unicode(80, 30)
-
-    va = VerticalArrow(color='orange', background='navy')
-    va.direction = 'both'
-    print va.to_unicode(80, 30)
 

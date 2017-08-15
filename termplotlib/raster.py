@@ -17,7 +17,7 @@ class RasterCanvas(Canvas):
                                [0x02, 0x10],
                                [0x01, 0x08]])
 
-    def __init__(self, width, height, pattern=None, background=None):
+    def __init__(self, width, height, stretchable=True, alignment='center', pattern=None, background=None):
         """Create a canvas.
 
         :param int width: The width (in dots) of the canvas.
@@ -26,6 +26,7 @@ class RasterCanvas(Canvas):
         an empty canvas is created.
         :param string background: The background color of the canvas.
         """
+        super(RasterCanvas, self).__init__(width, height, stretchable, alignment)
         if pattern is not None:
             height, width = pattern.shape
             self._set_size(width, height)
@@ -55,10 +56,12 @@ class RasterCanvas(Canvas):
         # Make sure the color map is initialized with empty strings.
         self._color_map[:] = ''
 
-    def stretch(self, new_width, new_height, alignment='center'):
-        padding = self.get_padding(new_width, new_height, alignment)
+    def stretch(self, new_width, new_height):
+        padding = self.get_padding(new_width, new_height)
         self.pattern = np.pad(self.pattern, padding, mode='constant')
         self._color_map = np.pad(self._color_map, padding, mode='constant')
+        new_width = self.width + padding[1,:].sum()
+        new_height = self.height + padding[0,:].sum()
         self._set_size(new_width, new_height)
 
     def set(self, x, y, color=None):
@@ -95,9 +98,9 @@ class RasterCanvas(Canvas):
             return sorted(counts, key=counts.get, reverse=True)[0]
         return ''
 
-    def get_rows(self, width=None, height=None, alignment='bottomleft'):
+    def get_rows(self, width=None, height=None):
         width, height = self._check_dimensions(width, height)
-        padding = self.get_padding(width, height, alignment)
+        padding = self.get_padding(width, height)
         pattern = np.pad(self.pattern, padding, mode='constant')
         color_map = np.pad(self._color_map, padding, mode='constant')
 

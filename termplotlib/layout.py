@@ -14,7 +14,8 @@ class Row(Canvas):
     canvas.
     """
 
-    def __init__(self, canvases=None):
+    def __init__(self, canvases=None, width=0, height=0, stretchable=True, alignment='center'):
+        super(Row, self).__init__(width, height, stretchable, alignment)
         self.width = 0
         self.height = 0
         self.canvases = []
@@ -27,13 +28,20 @@ class Row(Canvas):
         self.width += canvas.width
         self.canvases.append(canvas)
 
-    def get_rows(self, width=None, height=None, alignment='center'):
+    def get_rows(self, width=None, height=None):
         width, height = self._check_dimensions(width, height)
+        total_stretch_width = width - self.width
+        n_stretchable = len([c for c in self.canvases if c.stretchable])
+        if n_stretchable > 0:
+            stretch_width = int(total_stretch_width / float(n_stretchable))
+        else:
+            stretch_width = 0
 
         rows = []
         canvas_rows = []
         for canvas in self.canvases:
-            canvas_rows.append(canvas.get_rows(canvas.width, height, alignment=alignment))
+            c_rows = canvas.get_rows(canvas.width + stretch_width, height)
+            canvas_rows.append(c_rows)
         for row_tuple in zip(*canvas_rows):
             rows.append(''.join(row_tuple))
         return rows
@@ -44,25 +52,26 @@ class Column(Canvas):
     canvas.
     """
 
-    def __init__(self, canvases=None):
+    def __init__(self, canvases=None, width=0, height=0, stretchable=True, alignment='center'):
         self.width = 0
         self.height = 0
         self.canvases = []
         if canvases:
             for canvas in canvases:
                 self.add_canvas(canvas)
+        super(Column, self).__init__(self.width, self.height, stretchable, alignment)
 
     def add_canvas(self, canvas):
         self.width = max(self.width, canvas.width)
         self.height += canvas.height
         self.canvases.append(canvas)
 
-    def get_rows(self, width=None, height=None, alignment='center'):
+    def get_rows(self, width=None, height=None):
         width, height = self._check_dimensions(width, height)
 
         rows = []
         for canvas in self.canvases:
-            rows.extend(canvas.get_rows(width, canvas.height, alignment=alignment))
+            rows.extend(canvas.get_rows(width, canvas.height))
         return rows
 
 if __name__ == '__main__':
